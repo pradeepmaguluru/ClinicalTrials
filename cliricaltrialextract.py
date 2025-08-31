@@ -15,12 +15,13 @@ def get_trial_data(nct_id):
    url = f"https://clinicaltrials.gov/api/v2/studies/{nct_id}"
    
    response = requests.get(url)
-   print(response.json())
+   #print(response.json())
    data = response.json()
-   print(data)
+   #print(data)
+   study = data["FullStudiesResponse"]["FullStudies"][0]["Study"]
 
    
-   return data 
+   return study 
 
 # ----------------------------
 # 2. Extract details
@@ -54,10 +55,6 @@ def extract_info(study):
         "completion_date": completion_date,
         "locations": locations
     }
-
-# ----------------------------
-# 3a. Condition-Intervention Graph
-# ----------------------------
 def plot_condition_intervention_graph(conditions, interventions, nct_id):
     G = nx.Graph()
     for c in conditions:
@@ -70,25 +67,6 @@ def plot_condition_intervention_graph(conditions, interventions, nct_id):
             font_size=10, edge_color="gray")
     plt.title(f"Condition-Intervention Graph for {nct_id}", fontsize=14)
     plt.show()
-
-# ----------------------------
-# 3b. Timeline Plot
-# ----------------------------
-def plot_timeline(start_date, completion_date, enrollment, nct_id):
-    plt.figure(figsize=(8, 2))
-    try:
-        enrollment_int = int(enrollment)
-        plt.plot([start_date, completion_date], [enrollment_int, enrollment_int], marker="o")
-        plt.title(f"Timeline for {nct_id}\nEnrollment: {enrollment}", fontsize=14)
-        plt.xlabel("Dates")
-        plt.yticks([])
-        plt.show()
-    except (ValueError, TypeError):
-        print(f"Cannot plot timeline: Enrollment value '{enrollment}' is not a valid integer.")
-
-# ----------------------------
-# 3c. Location Distribution
-# ----------------------------
 def plot_locations(locations, nct_id):
     if not locations:
         print("No location data available")
@@ -102,22 +80,26 @@ def plot_locations(locations, nct_id):
     plt.ylabel("Number of Sites")
     plt.xlabel("Country")
     plt.show()
+def plot_timeline(start_date, completion_date, enrollment, nct_id):
+    plt.figure(figsize=(8, 2))
+    plt.plot([start_date, completion_date], [int(enrollment), int(enrollment)], marker="o")
+    plt.title(f"Timeline for {nct_id}\nEnrollment: {enrollment}", fontsize=14)
+    plt.xlabel("Dates")
+    plt.yticks([])
+    plt.show()
 
-# ----------------------------
-# Run Example
-# ----------------------------
-nct_id = "NCT04320615"   # replace with any NCT ID
-study = get_trial_data(nct_id)
-#info = extract_info(study)
 
-#print("Title:", info["title"])
-#print("Conditions:", info["conditions"])
-#print("Interventions:", info["interventions"])
-#print("Enrollment:", info["enrollment"])
-#print("Start Date:", info["start_date"], "Completion Date:", info["completion_date"])
-#print("Countries:", set(info["locations"]))
+data = get_trial_data("NCT04320615")
+info = extract_info(data)
 
-# Plots
-#plot_condition_intervention_graph(info["conditions"], info["interventions"], nct_id)
-#plot_timeline(info["start_date"], info["completion_date"], info["enrollment"], nct_id)
-#plot_locations(info["locations"], nct_id)
+print("Title:", info["title"])
+print("Conditions:", info["conditions"])
+print("Interventions:", info["interventions"])
+print("Enrollment:", info["enrollment"])
+print("Start Date:", info["start_date"], "Completion Date:", info["completion_date"])
+print("Countries:", set(info["locations"]))
+
+plot_condition_intervention_graph(info["conditions"], info["interventions"], "NCT04320615")
+plot_timeline(info["start_date"], info["completion_date"], info["enrollment"], "NCT04320615")
+plot_locations(info["locations"], "NCT04320615")
+
