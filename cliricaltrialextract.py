@@ -18,16 +18,28 @@ def get_trial_data(nct_id):
    #print(response.json())
    data = response.json()
    #print(data)
-   study = data["FullStudiesResponse"]["FullStudies"][0]["Study"]
+   #study = data["protocolSection"]['identificationModule']['briefTitle']
+   #print(study)
+   title = data["protocolSection"]["identificationModule"]["briefTitle"]
+   conditions = data["protocolSection"]["conditionsModule"]["conditions"]
+   interventions = []
+   if "armsInterventionsModule" in data["protocolSection"]:
+       interventions = [
+           i["interventionName"] 
+           for i in data["protocolSection"]["armsInterventionsModule"]["interventionList"]["intervention"]
+       ]
 
-   
-   return study 
+   print(title)
+   print(conditions)
+   print(interventions)
+
+   return data
 
 # ----------------------------
 # 2. Extract details
 # ----------------------------
 def extract_info(study):
-    title = study["ProtocolSection"]["IdentificationModule"].get("BriefTitle", "NA")
+    title = study["ProtocolSection"]["identificationModule"]["briefTitle"]
     conditions = study["ProtocolSection"]["ConditionsModule"]["ConditionList"]["Condition"]
 
     interventions = []
@@ -90,16 +102,16 @@ def plot_timeline(start_date, completion_date, enrollment, nct_id):
 
 
 data = get_trial_data("NCT04320615")
-info = extract_info(data)
+#info = extract_info(data)
 
-print("Title:", info["title"])
-print("Conditions:", info["conditions"])
-print("Interventions:", info["interventions"])
-print("Enrollment:", info["enrollment"])
-print("Start Date:", info["start_date"], "Completion Date:", info["completion_date"])
-print("Countries:", set(info["locations"]))
+#print("Title:", info["title"])
+#print("Conditions:", info["conditions"])
+#print("Interventions:", info["interventions"])
+#print("Enrollment:", info["enrollment"])
+#print("Start Date:", info["start_date"], "Completion Date:", info["completion_date"])
+#print("Countries:", set(info["locations"]))
 
-plot_condition_intervention_graph(info["conditions"], info["interventions"], "NCT04320615")
-plot_timeline(info["start_date"], info["completion_date"], info["enrollment"], "NCT04320615")
-plot_locations(info["locations"], "NCT04320615")
+#plot_condition_intervention_graph(info["conditions"], info["interventions"], "NCT04320615")
+#plot_timeline(info["start_date"], info["completion_date"], info["enrollment"], "NCT04320615")
+#plot_locations(info["locations"], "NCT04320615")
 

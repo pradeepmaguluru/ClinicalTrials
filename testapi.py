@@ -1,11 +1,12 @@
 import requests
 
-nct_id = "NCT04320615"
-url = f"https://clinicaltrials.gov/api/v2/studies/{nct_id}"
+BASE = "https://clinicaltrials.gov/api/v2/studies"
+params = {
+    "query.cond": "cancer",
+    "pageSize": 1,
+    "fields": "NCTId,protocolSection.identificationModule"
+}
 
-resp = requests.get(url)
-if resp.status_code != 200:
-    raise Exception(f"API request failed with status code {resp.status_code}")
-
-data = resp.json()
-print(data)
+r = requests.get(BASE, params=params)
+print(r.status_code)
+print(r.json())
